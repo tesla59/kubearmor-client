@@ -7,6 +7,7 @@ package recommend
 import (
 	"errors"
 	"fmt"
+	"github.com/kubearmor/kubearmor-client/utils"
 	"os"
 	"path/filepath"
 	"strings"
@@ -28,27 +29,8 @@ var options common.Options
 type Deployment struct {
 	Name      string
 	Namespace string
-	Labels    LabelMap
+	Labels    utils.LabelMap
 	Images    []string
-}
-
-// LabelMap is an alias for map[string]string
-type LabelMap = map[string]string
-
-func labelSplitter(r rune) bool {
-	return r == ':' || r == '='
-}
-
-func labelArrayToLabelMap(labels []string) LabelMap {
-	labelMap := LabelMap{}
-	for _, label := range labels {
-		kvPair := strings.FieldsFunc(label, labelSplitter)
-		if len(kvPair) != 2 {
-			continue
-		}
-		labelMap[kvPair[0]] = kvPair[1]
-	}
-	return labelMap
 }
 
 func unique(s []string) []string {
@@ -129,7 +111,7 @@ func Recommend(client Client, o common.Options, policyGenerators ...engines.Engi
 	var err error
 	var deployments []Deployment
 
-	labelMap := labelArrayToLabelMap(o.Labels)
+	labelMap := utils.LabelArrayToLabelMap(o.Labels)
 	if len(o.Images) == 0 {
 		deployments, err = client.ListDeployments(o)
 		if len(deployments) == 0 {
