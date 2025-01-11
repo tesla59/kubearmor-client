@@ -102,6 +102,7 @@ func Recommend(client common.Client, o common.Options, policyGenerators ...engin
 	var err error
 	var Objects []common.Object
 
+	log.Info("given labels: ", o.Labels)
 	labelMap := common.LabelArrayToLabelMap(o.Labels)
 	if len(o.Images) == 0 {
 		Objects, err = client.ListObjects(o)
@@ -115,6 +116,7 @@ func Recommend(client common.Client, o common.Options, policyGenerators ...engin
 			return nil
 		}
 	} else {
+		log.Info("Appending object", o.Namespace, labelMap, o.Images)
 		Objects = append(Objects, common.Object{
 			Namespace: o.Namespace,
 			Labels:    labelMap,

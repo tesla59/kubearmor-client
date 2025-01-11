@@ -6,6 +6,7 @@ import (
 	"github.com/docker/docker/api/types/filters"
 	"github.com/docker/docker/client"
 	"github.com/kubearmor/kubearmor-client/recommend/common"
+	log "github.com/sirupsen/logrus"
 	"strings"
 )
 
@@ -22,10 +23,12 @@ func ConnectDockerClient() (*Client, error) {
 }
 
 func (c *Client) ListObjects(o common.Options) ([]common.Object, error) {
+	log.Info("Listing objects in docker")
 	var result []common.Object
 	containers, err := c.Client.ContainerList(context.Background(), container.ListOptions{
 		Filters: filters.NewArgs(),
 	})
+	log.Info("containers: ", containers)
 	if err != nil {
 		return nil, err
 	}

@@ -21,17 +21,22 @@ var recommendCmd = &cobra.Command{
 	Short: "Recommend Policies",
 	Long:  `Recommend policies based on container image, k8s manifest or the actual runtime env`,
 	RunE: func(cmd *cobra.Command, args []string) error {
+		log.Info("Running with k8s=", recommendOptions.K8s)
 		if recommendOptions.K8s {
 			// Check if k8sClient can connect to the server by listing namespaces
+			log.Info("Checking if k8sClient can connect to the server by listing namespaces")
 			_, err := k8sClient.K8sClientset.CoreV1().Namespaces().List(context.Background(), v1.ListOptions{})
 			if err != nil {
+				log.Error("K8s client is not initialized, using docker client instead")
 				if len(recommendOptions.Images) == 0 { // only log the client if no images are provided
 					log.Error("K8s client is not initialized, using docker client instead")
 				}
 				return recommend.Recommend(dockerClient, recommendOptions, genericpolicies.GenericPolicy{})
 			}
+			log.Info("K8s client is initialized, using it instead")
 			return recommend.Recommend(k8sClient, recommendOptions, genericpolicies.GenericPolicy{})
 		} else {
+			log.Info("Using docker client")
 			return recommend.Recommend(dockerClient, recommendOptions, genericpolicies.GenericPolicy{})
 		}
 	},
